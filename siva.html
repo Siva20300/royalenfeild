@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Enfield - Online Vehicle Purchase Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a13478952b.js" crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #f2f2f2;
+            overflow-x: hidden;
+            cursor: none; /* Hide default cursor */
+        }
+
+        /* Custom Cursor */
+        .cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 25px;
+            height: 25px;
+            border: 2px solid #a31d27;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease-out;
+            opacity: 0.8;
+            box-shadow: 0 0 15px #a31d27;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 5px;
+            background-color: #a31d27;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease-out;
+        }
+
+        .interactive {
+            cursor: none !important;
+        }
+
+        .interactive:hover ~ .cursor-ring {
+            transform: scale(1.5) translate(-50%, -50%);
+            background-color: #a31d27;
+            opacity: 0.3;
+        }
+
+        .interactive:hover ~ .cursor-dot {
+            transform: scale(0.5) translate(-50%, -50%);
+        }
+
+        /* Hero Banner Animation */
+        .hero-bg {
+            background-size: cover;
+            background-position: center;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card and button animations */
+        .card, button {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background-color 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(163, 29, 39, 0.4);
+        }
+
+        /* Active Navigation Link */
+        .nav-active {
+            color: #a31d27 !important;
+            border-bottom: 2px solid #a31d27;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a31d27;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
+    <!-- Main Container -->
+    <div id="app" class="min-h-screen relative">
+        <!-- Navigation Bar -->
+        <header class="w-full bg-gray-900 bg-opacity-80 backdrop-blur-sm fixed top-0 z-50 shadow-md">
+            <nav class="container mx-auto p-4 flex justify-between items-center">
+                <a href="#" id="home-nav" class="logo text-2xl font-bold text-gray-100 flex items-center gap-2 interactive">
+                    <img src="rr.avif" alt="Royal Enfield Logo" class="h-8">
+                    <span class="hidden sm:inline">Royal Enfield</span>
+                </a>
+                <ul class="flex-1 hidden md:flex justify-center items-center space-x-8 lg:space-x-12">
+                    <li><a href="#" class="nav-link text-gray-300 hover:text-white interactive" data-page="catalog">Motorcycles</a></li>
+                    <li><a href="#" class="nav-link text-gray-300 hover:text-white interactive" data-page="accessories">Accessories</a></li>
+                    <li><a href="#" class="nav-link text-gray-300 hover:text-white interactive" data-page="testride">Book Test Ride</a></li>
+                    <li><a href="#" class="nav-link text-gray-300 hover:text-white interactive" data-page="finance">Finance</a></li>
+                    <li><a href="#" class="nav-link text-gray-300 hover:text-white interactive" data-page="service">Service</a></li>
+                </ul>
+                <div class="flex items-center space-x-4">
+                    <button id="cart-nav" class="text-gray-300 hover:text-white text-lg interactive relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="bg-red-700 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center absolute -top-1 -right-1">0</span>
+                    </button>
+                    <button id="login-btn" class="text-sm md:text-base bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-md interactive">Login</button>
+                    <button id="dashboard-btn" class="hidden text-sm md:text-base bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-md interactive">Dashboard</button>
+                    <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-white interactive">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </nav>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-4 px-6 transition-all duration-300 ease-in-out">
+                <ul class="flex flex-col space-y-4">
+                    <li><a href="#" class="nav-link block py-2 text-gray-300 hover:text-white interactive" data-page="catalog">Motorcycles</a></li>
+                    <li><a href="#" class="nav-link block py-2 text-gray-300 hover:text-white interactive" data-page="accessories">Accessories</a></li>
+                    <li><a href="#" class="nav-link block py-2 text-gray-300 hover:text-white interactive" data-page="testride">Book Test Ride</a></li>
+                    <li><a href="#" class="nav-link block py-2 text-gray-300 hover:text-white interactive" data-page="finance">Finance</a></li>
+                    <li><a href="#" class="nav-link block py-2 text-gray-300 hover:text-white interactive" data-page="service">Service</a></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="content" class="pt-20">
+            <!-- Content will be rendered here via JavaScript -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-950 py-8 mt-16 text-center text-gray-500">
+            <p>&copy; 2024 Royal Enfield. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Script Section -->
+    <script>
+        // --- CUSTOM CURSOR LOGIC ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorRing = document.querySelector('.cursor-ring');
+
+        document.addEventListener('mousemove', e => {
+            cursorDot.style.left = `${e.clientX}px`;
+            cursorDot.style.top = `${e.clientY}px`;
+            cursorRing.style.left = `${e.clientX}px`;
+            cursorRing.style.top = `${e.clientY}px`;
+        });
+
+        // --- GLOBAL STATE & MOCK DATA ---
+        let appState = {
+            currentPage: 'home',
+            isLoggedIn: false,
+            currentUser: null,
+            cart: [],
+            motorcycles: [
+                { id: 'classic350', model: 'Classic 350', price: 193000, engineCC: 349, colors: ['Red', 'Black', 'Grey'], images: ['https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/classic-350/colours/gallery/classic-350-redditch-red.jpg', 'https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/classic-350/colours/gallery/classic-350-halcyon-black.jpg'], specs: 'Timeless classic design with modern features.', details: 'The Classic 350 is a tribute to the timeless design of the past, reborn with the latest technology. A perfect blend of style and substance.' },
+                { id: 'meteor350', model: 'Meteor 350', price: 205000, engineCC: 349, colors: ['Blue', 'Black', 'Green'], images: ['https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/meteor-350/colours/stellar-blue/360-viewer/stellar-blue-thumbnail-new.jpg', 'https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/meteor-350/colours/supernova-blue/360-viewer/supernova-blue-thumbnail-new.jpg'], specs: 'A cruiser for the modern rider with an elegant chassis.', details: 'The Meteor 350 is a classic cruiser, with a refined heart. It\'s built for the modern rider who values comfort, style, and a smooth journey.' },
+                { id: 'scram411', model: 'Scram 411', price: 220000, engineCC: 411, colors: ['White', 'Black', 'Yellow'], images: ['https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/scram-411/urban-tracker/urban-tracker-1.png', 'https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/scram-411/urban-tracker/urban-tracker-2.png'], specs: 'Urban adventurer with a scrambler soul.', details: 'The Scram 411 is built for the urban jungle. It\'s a versatile machine that can handle both city roads and rough terrains with ease, making every ride an adventure.' },
+                { id: 'supermeteor650', model: 'Super Meteor 650', price: 349000, engineCC: 648, colors: ['Green', 'Blue', 'Black'], images: ['https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/super-meteor-650/colours/interstellar-green.png', 'https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/super-meteor-650/colours/astral-blue.png'], specs: 'The ultimate cruiser with a powerful 650cc engine.', details: 'The Super Meteor 650 is the pinnacle of Royal Enfield\'s cruiser lineup. A powerful twin-cylinder engine and a relaxed riding posture make it perfect for long journeys.' }
+            ],
+            accessories: [
+                { id: 'touring_seat', name: 'Touring Seat', price: 3500, type: 'seat', imageUrl: 'https://www.royalenfield.com/content/dam/royal-enfield/india/accessories/touring-seat.jpg' },
+                { id: 'engine_guard', name: 'Engine Guard', price: 2500, type: 'protection', imageUrl: 'https://www.royalenfield.com/content/dam/royal-enfield/india/accessories/engine-guard.jpg' },
+                { id: 'saddle_bag', name: 'Saddle Bag', price: 5000, type: 'luggage', imageUrl: 'https://www.royalenfield.com/content/dam/royal-enfield/india/accessories/soft-saddlebag.jpg' }
+            ],
+            // This is our mock database
+            mockDB: {
+                users: {
+                    "testuser": {
+                        username: "Test User",
+                        orders: [{ id: 'ord123', status: 'Shipped', item: 'Classic 350', tracking: 'RE123456' }],
+                        testRides: [{ date: '2024-11-20', model: 'Meteor 350', status: 'Confirmed' }],
+                        serviceReminders: [{ date: '2025-01-15', service: 'First service' }]
+                    }
+                }
+            }
+        };
+
+        const contentDiv = document.getElementById('content');
+        const cartCountSpan = document.getElementById('cart-count');
+        const loginBtn = document.getElementById('login-btn');
+        const dashboardBtn = document.getElementById('dashboard-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // --- NAVIGATION & RENDERING LOGIC ---
+        function navigate(page, data = null) {
+            appState.currentPage = page;
+            if (data) {
+                sessionStorage.setItem('currentViewData', JSON.stringify(data));
+            } else {
+                sessionStorage.removeItem('currentViewData');
+            }
+            updateUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateNavLinks();
+        }
+        
+        function updateNavLinks() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('nav-active');
+            });
+            const activeLink = document.querySelector(`.nav-link[data-page="${appState.currentPage}"]`);
+            if (activeLink) {
+                activeLink.classList.add('nav-active');
+            }
+        }
+
+        function updateUI() {
+            updateCartCount();
+            switch(appState.currentPage) {
+                case 'home':
+                    renderHomePage();
+                    break;
+                case 'catalog':
+                    renderCatalogPage();
+                    break;
+                case 'details':
+                    renderMotorcycleDetailsPage();
+                    break;
+                case 'customize':
+                    renderCustomizationPage();
+                    break;
+                case 'cart':
+                    renderCartPage();
+                    break;
+                case 'checkout':
+                    renderCheckoutPage();
+                    break;
+                case 'dashboard':
+                    renderDashboardPage();
+                    break;
+                default:
+                    renderHomePage();
+            }
+        }
+        
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        function toggleLogin() {
+            appState.isLoggedIn = !appState.isLoggedIn;
+            if (appState.isLoggedIn) {
+                appState.currentUser = appState.mockDB.users["testuser"];
+                loginBtn.classList.add('hidden');
+                dashboardBtn.classList.remove('hidden');
+            } else {
+                appState.currentUser = null;
+                loginBtn.classList.remove('hidden');
+                dashboardBtn.classList.add('hidden');
+            }
+            updateUI();
+        }
+
+        function updateCartCount() {
+            const count = appState.cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountSpan.textContent = count;
+        }
+
+        function addToCart(item, quantity = 1) {
+            // Check if the item already exists in the cart based on its full properties
+            const existingItem = appState.cart.find(cartItem => JSON.stringify(cartItem) === JSON.stringify(item));
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                appState.cart.push({ ...item, quantity });
+            }
+            updateUI();
+        }
+
+        // --- PAGE RENDERING FUNCTIONS ---
+        function renderHomePage() {
+            contentDiv.innerHTML = `
+                <!-- Hero Banner -->
+                <div class="hero-bg bg-cover bg-center h-screen flex items-end relative" style="background-image: url('https://www.royalenfield.com/content/dam/royal-enfield/india/motorcycles/hunter-350/campaigns/pure-motorcycling/desktop/hunter-350-re-site-banner-d.jpg');">
+                    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                    <div class="container mx-auto p-8 relative z-10 text-center md:text-left">
+                        <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 animate-fadeIn">The New Royal Enfield Hunter 350</h1>
+                        <p class="text-lg md:text-2xl text-gray-300 mb-6 animate-fadeIn delay-200">A new world of pure motorcycling. The new standard for everyday.</p>
+                        <button id="explore-btn" class="text-sm md:text-base bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-8 rounded-full interactive animate-fadeIn delay-400">Explore Models</button>
+                    </div>
+                </div>
+
+                <!-- Latest Motorcycles Section -->
+                <section class="container mx-auto py-16 px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12">Latest Models</h2>
+                    <div id="latest-bikes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <!-- Content will be generated by JS -->
+                    </div>
+                </section>
+            `;
+            // Render latest bikes
+            const latestBikesList = document.getElementById('latest-bikes-list');
+            appState.motorcycles.slice(0, 4).forEach(bike => {
+                const card = document.createElement('div');
+                card.className = "card bg-gray-800 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl interactive";
+                card.innerHTML = `
+                    <img src="${bike.images[0]}" alt="${bike.model}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">${bike.model}</h3>
+                        <p class="text-sm text-gray-400 mb-4">${bike.specs}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-bold text-red-500">₹${(bike.price / 1000).toLocaleString('en-IN')}k</span>
+                            <button class="bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-6 rounded-full interactive view-details-btn" data-bike-id="${bike.id}">View Details</button>
+                        </div>
+                    </div>
+                `;
+                latestBikesList.appendChild(card);
+            });
+            // Add event listeners
+            document.getElementById('explore-btn').addEventListener('click', () => navigate('catalog'));
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', (e) => navigate('details', e.target.dataset.bikeId));
+            });
+        }
+        
+        function renderCatalogPage() {
+            const getFiltersHtml = () => `
+                <div class="flex flex-col md:flex-row gap-4 mb-8">
+                    <select id="filter-model" class="p-2 rounded-md bg-gray-800 text-white interactive">
+                        <option value="">All Models</option>
+                        ${[...new Set(appState.motorcycles.map(b => b.model))].map(model => `<option value="${model}">${model}</option>`).join('')}
+                    </select>
+                    <select id="filter-cc" class="p-2 rounded-md bg-gray-800 text-white interactive">
+                        <option value="">Engine CC</option>
+                        <option value="350">350cc</option>
+                        <option value="411">411cc</option>
+                        <option value="650">650cc</option>
+                    </select>
+                    <select id="filter-color" class="p-2 rounded-md bg-gray-800 text-white interactive">
+                        <option value="">Color</option>
+                        <option value="Red">Red</option>
+                        <option value="Black">Black</option>
+                        <option value="Blue">Blue</option>
+                        <option value="Green">Green</option>
+                    </select>
+                </div>
+            `;
+            
+            contentDiv.innerHTML = `
+                <div class="container mx-auto py-16 px-4">
+                    <h2 class="text-4xl font-bold text-center mb-8">Motorcycle Catalog</h2>
+                    ${getFiltersHtml()}
+                    <div id="motorcycle-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Filtered bikes will be rendered here -->
+                    </div>
+                </div>
+            `;
+            
+            // Function to apply filters and render bikes
+            const applyFilters = () => {
+                const filterModel = document.getElementById('filter-model').value;
+                const filterCC = document.getElementById('filter-cc').value;
+                const filterColor = document.getElementById('filter-color').value;
+                
+                const filteredBikes = appState.motorcycles.filter(bike => {
+                    const modelMatch = !filterModel || bike.model === filterModel;
+                    const ccMatch = !filterCC || bike.engineCC.toString() === filterCC;
+                    const colorMatch = !filterColor || bike.colors.includes(filterColor);
+                    return modelMatch && ccMatch && colorMatch;
+                });
+                
+                const listContainer = document.getElementById('motorcycle-list');
+                listContainer.innerHTML = ''; // Clear previous results
+                
+                if (filteredBikes.length > 0) {
+                    filteredBikes.forEach(bike => {
+                        const card = document.createElement('div');
+                        card.className = "card bg-gray-800 rounded-lg overflow-hidden shadow-xl hover:shadow-2xl interactive";
+                        card.innerHTML = `
+                            <img src="${bike.images[0]}" alt="${bike.model}" class="w-full h-64 object-cover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold mb-2">${bike.model}</h3>
+                                <p class="text-sm text-gray-400 mb-4">Starting from ₹${(bike.price / 1000).toLocaleString('en-IN')}k</p>
+                                <button class="bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-6 rounded-full interactive view-details-btn" data-bike-id="${bike.id}">View Details</button>
+                            </div>
+                        `;
+                        listContainer.appendChild(card);
+                    });
+                    // Add listeners for the new buttons
+                    document.querySelectorAll('.view-details-btn').forEach(button => {
+                        button.addEventListener('click', (e) => navigate('details', e.target.dataset.bikeId));
+                    });
+                } else {
+                    listContainer.innerHTML = `<p class="text-center text-gray-400 col-span-full">No motorcycles match your filters.</p>`;
+                }
+            };
+            
+            // Attach listeners to filters only once
+            document.getElementById('filter-model').addEventListener('change', applyFilters);
+            document.getElementById('filter-cc').addEventListener('change', applyFilters);
+            document.getElementById('filter-color').addEventListener('change', applyFilters);
+
+            // Initial render
+            applyFilters();
+        }
+
+        function renderMotorcycleDetailsPage() {
+            const bikeId = JSON.parse(sessionStorage.getItem('currentViewData'));
+            const bike = appState.motorcycles.find(b => b.id === bikeId);
+            
+            if (!bike) {
+                contentDiv.innerHTML = `<div class="container mx-auto py-16 px-4 text-center">Motorcycle not found.</div>`;
+                return;
+            }
+            
+            contentDiv.innerHTML = `
+                <div class="container mx-auto py-16 px-4">
+                    <button id="back-to-catalog" class="text-gray-400 hover:text-white mb-8 interactive"><i class="fas fa-arrow-left mr-2"></i> Back to Catalog</button>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Left Column: Image Viewer, Videos -->
+                        <div>
+                            <div id="image-viewer" class="relative bg-gray-800 rounded-lg overflow-hidden h-96 mb-4">
+                                <!-- 360° Viewer Simulation -->
+                                <img id="bike-image" src="${bike.images[0]}" alt="${bike.model}" class="w-full h-full object-contain transition-all duration-300">
+                                <div class="absolute inset-0 flex items-center justify-center text-gray-500">
+                                    <i class="fas fa-arrows-alt-h text-4xl"></i>
+                                    <span class="ml-4">Drag to rotate (mock)</span>
+                                </div>
+                            </div>
+                            <!-- Small image thumbnails for 360 view -->
+                            <div class="flex justify-center gap-2 mt-4">
+                                ${bike.images.map(img => `
+                                    <img src="${img}" class="w-20 h-20 rounded-md object-cover border-2 border-gray-700 hover:border-red-700 cursor-pointer interactive thumbnail" data-img-src="${img}">
+                                `).join('')}
+                            </div>
+                            
+                            <!-- Placeholder for Videos -->
+                            <div class="mt-8">
+                                <h3 class="text-2xl font-semibold mb-4">Videos</h3>
+                                <div class="bg-gray-800 rounded-lg h-56 flex items-center justify-center text-gray-500">
+                                    Video Placeholder
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column: Details, Specs, Reviews -->
+                        <div>
+                            <h1 class="text-4xl font-bold mb-4">${bike.model}</h1>
+                            <p class="text-xl text-red-500 font-semibold mb-6">₹${bike.price.toLocaleString('en-IN')}</p>
+                            
+                            <h3 class="text-2xl font-semibold mb-2">Specifications</h3>
+                            <ul class="text-gray-400 list-disc list-inside mb-6 space-y-2">
+                                <li>Engine CC: ${bike.engineCC}cc</li>
+                                <li>Colors: ${bike.colors.join(', ')}</li>
+                                <li>${bike.details}</li>
+                                <!-- More mock specs here -->
+                            </ul>
+                            
+                            <div class="flex gap-4">
+                                <button id="customize-btn" class="bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-8 rounded-full interactive" data-bike-id="${bike.id}">Customize & Buy</button>
+                                <button id="testride-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-8 rounded-full interactive">Book Test Ride</button>
+                            </div>
+                            
+                            <!-- Customer Reviews -->
+                            <div class="mt-8">
+                                <h3 class="text-2xl font-semibold mb-4">Customer Reviews</h3>
+                                <div class="bg-gray-800 rounded-lg p-6 space-y-4">
+                                    <div class="border-b border-gray-700 pb-4">
+                                        <p class="font-semibold">John Doe <span class="text-yellow-400 ml-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span></p>
+                                        <p class="text-gray-400 text-sm italic">"Absolutely love my new bike! Smooth ride and classic looks."</p>
+                                    </div>
+                                    <div class="border-b border-gray-700 pb-4">
+                                        <p class="font-semibold">Jane Smith <span class="text-yellow-400 ml-2"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span><i class="far fa-star"></i></p>
+                                        <p class="text-gray-400 text-sm italic">"Great for city commuting, very comfortable."</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            document.getElementById('back-to-catalog').addEventListener('click', () => navigate('catalog'));
+            document.getElementById('customize-btn').addEventListener('click', (e) => navigate('customize', e.target.dataset.bikeId));
+            document.getElementById('testride-btn').addEventListener('click', () => navigate('dashboard'));
+            
+            // Mock 360 viewer functionality
+            const imageViewer = document.getElementById('image-viewer');
+            const bikeImage = document.getElementById('bike-image');
+            let isDragging = false;
+            let startX = 0;
+
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.addEventListener('click', (e) => {
+                    bikeImage.src = e.target.dataset.src;
+                });
+            });
+
+            imageViewer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                imageViewer.style.cursor = 'grabbing';
+            });
+            imageViewer.addEventListener('mouseup', () => {
+                isDragging = false;
+                imageViewer.style.cursor = 'grab';
+            });
+            imageViewer.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                if (Math.abs(dx) > 50) {
+                    bikeImage.src = bike.images[Math.floor(Math.random() * bike.images.length)];
+                    startX = e.clientX;
+                }
+            });
+        }
+
+        function renderCustomizationPage() {
+            const bikeId = JSON.parse(sessionStorage.getItem('currentViewData'));
+            const bike = appState.motorcycles.find(b => b.id === bikeId);
+            const availableAccessories = appState.accessories;
+            
+            if (!bike) {
+                contentDiv.innerHTML = `<div class="container mx-auto py-16 px-4 text-center">Motorcycle not found.</div>`;
+                return;
+            }
+
+            let customizationState = {
+                color: bike.colors[0],
+                accessories: []
+            };
+            
+            const updatePreview = () => {
+                const previewDiv = document.getElementById('preview');
+                const accessoryList = customizationState.accessories.map(accId => {
+                    const acc = availableAccessories.find(a => a.id === accId);
+                    return acc ? `<p>- ${acc.name} (+₹${acc.price.toLocaleString('en-IN')})</p>` : '';
+                }).join('');
+                
+                let total = bike.price;
+                customizationState.accessories.forEach(accId => {
+                    total += availableAccessories.find(a => a.id === accId)?.price || 0;
+                });
+                
+                // Construct and render the preview section
+                const previewHtml = `
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl">
+                        <img src="${bike.images[0]}" class="w-full h-auto rounded-md mb-4 animate-fadeIn" alt="Customized Bike">
+                        <p class="text-xl font-bold mb-2">Final Look: <span class="text-red-500">${bike.model} in ${customizationState.color}</span></p>
+                        <p class="text-gray-400 mb-4">Accessories:</p>
+                        <div class="text-sm text-gray-300">
+                            ${accessoryList.length > 0 ? accessoryList : '<p>- No accessories selected.</p>'}
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-700">
+                            <p class="text-2xl font-bold text-red-500">Total: ₹${total.toLocaleString('en-IN')}</p>
+                        </div>
+                        <button id="add-to-cart-btn" class="w-full mt-6 bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-8 rounded-full interactive">Add to Cart</button>
+                    </div>
+                `;
+                previewDiv.innerHTML = previewHtml;
+
+                // Add event listener for the new "Add to Cart" button
+                document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+                    const customizedItem = {
+                        id: `${bike.id}-${customizationState.color}-${customizationState.accessories.join('-')}`, // Unique ID for this specific customization
+                        name: `${bike.model} (${customizationState.color} with accessories)`,
+                        price: total,
+                        imageUrl: bike.images[0],
+                        details: {
+                            color: customizationState.color,
+                            accessories: customizationState.accessories.map(accId => availableAccessories.find(a => a.id === accId).name)
+                        }
+                    };
+                    addToCart(customizedItem);
+                });
+            };
+            
+            contentDiv.innerHTML = `
+                <div class="container mx-auto py-16 px-4">
+                    <h2 class="text-4xl font-bold text-center mb-12">Customize Your ${bike.model}</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- Customization Options -->
+                        <div>
+                            <h3 class="text-2xl font-semibold mb-4">1. Choose Color</h3>
+                            <div class="flex gap-4 mb-8" id="color-options">
+                                ${bike.colors.map(color => `
+                                    <div class="w-12 h-12 rounded-full border-4 cursor-pointer interactive color-option" 
+                                        style="background-color: ${color.toLowerCase()}; border-color: ${customizationState.color === color ? '#a31d27' : 'transparent'};" 
+                                        data-color="${color}">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <h3 class="text-2xl font-semibold mb-4">2. Add Accessories</h3>
+                            <div class="space-y-4" id="accessory-options">
+                                ${availableAccessories.map(acc => `
+                                    <label class="flex items-center gap-4 bg-gray-800 p-4 rounded-lg cursor-pointer interactive">
+                                        <input type="checkbox" data-acc-id="${acc.id}" class="w-6 h-6 text-red-700 bg-gray-700 border-gray-600 rounded interactive">
+                                        <div class="flex-1">
+                                            <p class="text-lg font-semibold">${acc.name}</p>
+                                            <p class="text-gray-400 text-sm">+₹${acc.price}</p>
+                                        </div>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <!-- Live Preview -->
+                        <div id="preview"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Add listeners for color and accessories
+            document.getElementById('color-options').addEventListener('click', (e) => {
+                if (e.target.classList.contains('color-option')) {
+                    const selectedColor = e.target.dataset.color;
+                    customizationState.color = selectedColor;
+                    document.querySelectorAll('.color-option').forEach(c => c.style.borderColor = c.dataset.color === selectedColor ? '#a31d27' : 'transparent');
+                    updatePreview();
+                }
+            });
+
+            document.getElementById('accessory-options').addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const accId = e.target.dataset.accId;
+                    if (e.target.checked) {
+                        customizationState.accessories.push(accId);
+                    } else {
+                        customizationState.accessories = customizationState.accessories.filter(id => id !== accId);
+                    }
+                    updatePreview();
+                }
+            });
+
+            updatePreview();
+        }
+
+        function renderCartPage() {
+            const total = appState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            
+            contentDiv.innerHTML = `
+                <div class="container mx-auto py-16 px-4">
+                    <h2 class="text-4xl font-bold text-center mb-8">Your Cart</h2>
+                    <div class="bg-gray-800 p-8 rounded-lg shadow-xl" id="cart-list">
+                        <!-- Cart items will be rendered here -->
+                    </div>
+                    
+                    ${appState.cart.length > 0 ? `
+                        <div class="mt-8 flex flex-col items-end gap-4">
+                            <h3 class="text-2xl font-bold">Grand Total: <span class="text-red-500">₹${total.toLocaleString('en-IN')}</span></h3>
+                            <button id="checkout-btn" class="bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-12 rounded-full interactive">Proceed to Checkout</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            const cartList = document.getElementById('cart-list');
+            if (appState.cart.length > 0) {
+                appState.cart.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = "flex flex-col sm:flex-row justify-between items-center py-4 border-b border-gray-700 last:border-b-0";
+                    cartItem.innerHTML = `
+                        <div class="flex items-center gap-4 mb-4 sm:mb-0">
+                            <img src="${item.imageUrl}" alt="${item.name}" class="w-24 h-24 object-cover rounded-md">
+                            <div>
+                                <p class="text-lg font-semibold">${item.name}</p>
+                                <p class="text-gray-400">₹${item.price.toLocaleString('en-IN')}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <p class="text-lg">Qty: ${item.quantity}</p>
+                            <p class="text-lg font-semibold text-red-500">Total: ₹${(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                            <button class="text-gray-400 hover:text-red-500 interactive remove-from-cart-btn" data-item-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    `;
+                    cartList.appendChild(cartItem);
+                });
+                
+                document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+                    button.addEventListener('click', (e) => removeFromCart(e.target.closest('button').dataset.itemId));
+                });
+                document.getElementById('checkout-btn').addEventListener('click', () => navigate('checkout'));
+            } else {
+                cartList.innerHTML = '<p class="text-center text-gray-400">Your cart is empty.</p>';
+            }
+        }
+
+        function removeFromCart(itemId) {
+            appState.cart = appState.cart.filter(item => item.id !== itemId);
+            updateUI();
+        }
+
+        function renderCheckoutPage() {
+            if (appState.cart.length === 0) {
+                contentDiv.innerHTML = `<div class="container mx-auto py-16 px-4 text-center">Your cart is empty. Nothing to checkout.</div>`;
+                return;
+            }
+            const total = appState.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            contentDiv.innerHTML = `
+                <div class="container mx-auto py-16 px-4">
+                    <h2 class="text-4xl font-bold text-center mb-8">Checkout</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- Order Summary -->
+                        <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+                            <h3 class="text-2xl font-bold mb-4">Order Summary</h3>
+                            <div class="space-y-4" id="order-summary-list">
+                                <!-- Order items will be rendered here -->
+                            </div>
+                            <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-700">
+                                <p class="text-2xl font-bold">Grand Total</p>
+                                <p class="text-2xl font-bold text-red-500">₹${total.toLocaleString('en-IN')}</p>
+                            </div>
+                        </div>
+
+                        <!-- Payment Form -->
+                        <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+                            <h3 class="text-2xl font-bold mb-4">Payment Information</h3>
+                            <form id="payment-form" class="space-y-6">
+                                <div>
+                                    <label for="name" class="block text-gray-400 mb-2">Full Name</label>
+                                    <input type="text" id="name" class="w-full bg-gray-700 text-white p-3 rounded-md interactive" required>
+                                </div>
+                                <div>
+                                    <label for="address" class="block text-gray-400 mb-2">Shipping Address</label>
+                                    <textarea id="address" rows="3" class="w-full bg-gray-700 text-white p-3 rounded-md interactive" required></textarea>
+                                </div>
+                                <div>
+                                    <label for="payment-method" class="block text-gray-400 mb-2">Payment Method</label>
+                                    <select id="payment-method" class="w-full bg-gray-700 text-white p-3 rounded-md interactive">
+                                        <option value="card">Credit/Debit Card (Mock)</option>
+                                        <option value="upi">UPI (Mock)</option>
+                                    </select>
+                                </div>
+                                <div id="payment-status" class="hidden text-center text-lg font-bold"></div>
+                                <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-3 rounded-full interactive">Pay Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const orderSummaryList = document.getElementById('order-summary-list');
+            appState.cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex justify-between items-center border-b border-gray-700 pb-2";
+                itemDiv.innerHTML = `
+                    <p class="text-lg">${item.name} x${item.quantity}</p>
+                    <p class="text-lg font-semibold">₹${(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                `;
+                orderSummaryList.appendChild(itemDiv);
+            });
+
+            const paymentForm = document.getElementById('payment-form');
+            paymentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const statusDiv = document.getElementById('payment-status');
+                statusDiv.classList.remove('hidden', 'text-green-500', 'text-red-500');
+                statusDiv.classList.add('text-yellow-500');
+                statusDiv.textContent = 'Processing payment...';
+                
+                setTimeout(() => {
+                    statusDiv.classList.remove('text-yellow-500');
+                    statusDiv.classList.add('text-green-500');
+                    statusDiv.textContent = 'Payment Successful! Redirecting...';
+                    
+                    appState.cart = [];
+                    updateCartCount();
+                    
+                    setTimeout(() => {
+                        navigate('dashboard');
+                    }, 2000);
+                }, 2000);
+            });
+        }
+        
+        function renderDashboardPage() {
+            if (!appState.isLoggedIn) {
+                contentDiv.innerHTML = `<div class="container mx-auto py-16 px-4 text-center">
+                    <h2 class="text-4xl font-bold mb-4">You are not logged in.</h2>
+                    <p class="text-gray-400 mb-8">Please log in to view your dashboard.</p>
+                    <button id="login-nav-btn" class="bg-red-700 hover:bg-red-800 text-white font-semibold py-3 px-8 rounded-full interactive">Login Now</button>
+                </div>`;
+                document.getElementById('login-nav-btn').addEventListener('click', toggleLogin);
+                return;
+            }
+
+            const userData = appState.currentUser;
+            
+            contentDiv.innerHTML = `
+                <div class="container mx-auto py-16 px-4">
+                    <h2 class="text-4xl font-bold mb-8">Welcome, ${userData.username}!</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Order History -->
+                        <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+                            <h3 class="text-2xl font-bold mb-4">My Orders</h3>
+                            ${userData.orders.map(order => `
+                                <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                                    <p class="text-lg font-semibold">Order ID: ${order.id}</p>
+                                    <p class="text-gray-400">Item: ${order.item}</p>
+                                    <p class="text-gray-400">Status: <span class="text-green-500">${order.status}</span></p>
+                                    <p class="text-gray-400">Tracking: ${order.tracking}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- Test Ride Bookings -->
+                        <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+                            <h3 class="text-2xl font-bold mb-4">Test Ride Bookings</h3>
+                            ${userData.testRides.map(booking => `
+                                <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                                    <p class="text-lg font-semibold">Model: ${booking.model}</p>
+                                    <p class="text-gray-400">Date: ${booking.date}</p>
+                                    <p class="text-gray-400">Status: <span class="text-green-500">${booking.status}</span></p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- Service Reminders -->
+                        <div class="bg-gray-800 p-8 rounded-lg shadow-xl">
+                            <h3 class="text-2xl font-bold mb-4">Service Reminders</h3>
+                            ${userData.serviceReminders.map(reminder => `
+                                <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                                    <p class="text-lg font-semibold">Service: ${reminder.service}</p>
+                                    <p class="text-gray-400">Date: ${reminder.date}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- INITIALIZATION & EVENT LISTENERS ---
+        // Top-level navigation listeners
+        document.getElementById('home-nav').addEventListener('click', () => navigate('home'));
+        document.getElementById('cart-nav').addEventListener('click', () => navigate('cart'));
+        document.getElementById('login-btn').addEventListener('click', toggleLogin);
+        document.getElementById('dashboard-btn').addEventListener('click', () => navigate('dashboard'));
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        // General event delegation for navigation
+        document.querySelector('nav ul').addEventListener('click', (e) => {
+            if (e.target.tagName === 'A') {
+                const page = e.target.dataset.page;
+                if (page === 'accessories') { // Mocking the accessories page
+                    navigate('catalog', 'accessories');
+                } else {
+                    navigate(page);
+                }
+            }
+        });
+        
+        // Initial render
+        window.onload = () => {
+            updateUI();
+        };
+
+        // Make all interactive elements also part of the custom cursor effect
+        document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+            el.classList.add('interactive');
+        });
+
+    </script>
+
+</body>
+</html>
